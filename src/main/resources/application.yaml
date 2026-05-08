@@ -8,5 +8,4 @@ ktor:
       - com.example.SerializationKt.configureSerialization
 #      - com.example.PostgresKt.configurePostgres
 #      - com.example.ExposedKt.configureExposed
-      - com.example.DIKt.configureDependencyInjection
       - com.example.RoutingKt.configureRouting
