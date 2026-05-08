@@ -10,7 +10,10 @@
 //import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
 //
 //@Serializable
-//data class ExposedUser(val name: String, val age: Int)
+//data class ExposedUser(
+//    val name: String,
+//    val age: Int
+//)
 //
 //class ExposedUserService(val database: R2dbcDatabase) {
 //    object Users : UIntIdTable() {
