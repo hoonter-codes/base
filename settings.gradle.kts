@@ -1,4 +1,4 @@
-rootProject.name = "base"
+rootProject.name = "cache"
 
 pluginManagement {
     repositories {
