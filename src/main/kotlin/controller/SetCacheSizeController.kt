@@ -2,10 +2,9 @@ package com.example.controller
 
 import com.example.domain.exceptions.CacheUsecaseException
 import domain.usecases.CacheUsecase
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.ApplicationCall
-import io.ktor.server.response.respond
-import registry.CacheUsecaseRegistry
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.response.*
 
 class SetCacheSizeController {
 
