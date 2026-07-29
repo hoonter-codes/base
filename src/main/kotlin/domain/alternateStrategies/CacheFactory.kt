@@ -33,7 +33,7 @@ object CacheFactory {
         lruInstances.computeIfAbsent(userId) { LRUCache(capacity) } as LRUCache<K, V>
 }
 
-/*
+/**
 
 Every object on the JVM has a built-in lock (called a monitor). synchronized(this) { ... } means: before entering this block, 
 the current thread must acquire the lock on this (our CacheFactory object). Only one thread can hold that lock at a time. 
@@ -57,6 +57,30 @@ use the lock. @Volatile covers the gap — it guarantees that when A publishes t
 still sees the fully constructed object, not null or a half-initialized reference. The pattern needs both pieces: synchronized prevents double creation, 
 @Volatile makes the lock-free read safe. Drop either one and double-checked locking is broken.
 
+In Kotlin, marking a variable with @Volatile tells the JVM: "Do not cache this variable inside CPU caches—always read and write it directly to main memory."
+
+The Problem It Solves
+Modern computers have multiple CPU cores, and each core has its own fast CPU cache (L1/L2 caches).
+
+By default, when a thread running on Core A reads or updates a variable, it might store that value in its local CPU cache to save time. If a second thread running
+on Core B updates that same variable, Core A might not see the update immediately because it keeps reading the old, stale value sitting in its own local cache.
+
+       [ Core A Cache ]  <--- Reads stale value (e.g., false)
+             ^
+             |
+       [ Main Memory ]   <--- Updated value (true)
+             ^
+             |
+       [ Core B Cache ]  <--- Writes update
+This issue is called a memory visibility problem.
+
+What @Volatile Guarantees
+When you add @Volatile to a property:
+
+Immediate Visibility: Any write to the variable is immediately written to main memory. Any read fetches the absolute latest value directly from main memory.
+
+Instruction Ordering: It prevents the CPU or compiler from reordering reads/writes around the volatile variable for optimization purposes.
+
 What actually happens in case of coroutines?
 A coroutine always executes on some thread (whichever one its dispatcher assigned). The monitor lock from @Synchronized 
 operates at the thread level — it neither knows nor cares that coroutines exist. So:
@@ -73,8 +97,8 @@ Blocking is only a problem in proportion to how long the lock is held. LFUCache.
 A thread blocking for microseconds is cheaper than a coroutine suspension (which involves scheduling machinery of its own). This is the accepted rule: short, CPU-only, 
 non-suspending critical sections are fine under synchronized, coroutines or not.
 
-The alternative would be the coroutine-native lock:
 
+The alternative would be the coroutine-native lock:
 
 private val mutex = Mutex()
 
